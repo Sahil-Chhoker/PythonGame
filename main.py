@@ -13,7 +13,7 @@ player_size = pygame.Vector2(70, 10)
 player_pos = pygame.Vector2(screen.get_width() / 2 - player_size.x / 2, 650)
 
 # Ball variables
-ball_speed = 100
+ball_speed = 30
 ball_radius = 10
 can_launch_ball = True
 initialized_ball_pos = pygame.Vector2(player_pos.x + player_size.x / 2, player_pos.y - player_size.y)
