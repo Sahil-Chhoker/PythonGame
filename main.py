@@ -49,7 +49,6 @@ while running:
         player_pos = initial_player_pos
     else:
         player_pos.x, player_pos.y = mouse_pos
-        player_pos.x -= player_size.x / 2
         player_pos.y = 650
 
         if player_pos.x + player_size.x >= 980:
@@ -77,17 +76,21 @@ while running:
     pygame.draw.line(screen, (255, 255, 255), (60, 0), (60, 720), 5)
     pygame.draw.line(screen, (255, 255, 255), (940, 0), (940, 720), 5)
 
-    # Rotate and draw arrow image
-    modified_arrow_image = pygame.transform.rotate(arrow_image, angle - 90)
-    modified_arrow_image = pygame.transform.scale_by(modified_arrow_image, 3)
-    arrow_rect = modified_arrow_image.get_rect(center=(player_pos.x, player_pos.y - 15))
-    screen.blit(modified_arrow_image, arrow_rect)
+    
+    
 
     # Launch Ball
-    if(clicking):
-        if(can_launch_ball):
+    if(can_launch_ball):
+        if(clicking):
             can_launch_ball = False
-            
+
+        # Rotate and draw arrow image
+        modified_arrow_image = pygame.transform.rotate(arrow_image, angle - 90)
+        modified_arrow_image = pygame.transform.scale_by(modified_arrow_image, 3)
+        arrow_rect = modified_arrow_image.get_rect(center=(player_pos.x, player_pos.y - 15))
+        screen.blit(modified_arrow_image, arrow_rect)
+        
+        
 
 
     pygame.display.flip()
