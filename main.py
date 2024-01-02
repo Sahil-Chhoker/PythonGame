@@ -13,6 +13,7 @@ player_size = pygame.Vector2(70, 10)
 player_pos = pygame.Vector2(screen.get_width() / 2 - player_size.x / 2, 650)
 
 # Ball variables
+ball_speed = 100
 ball_radius = 10
 can_launch_ball = True
 initialized_ball_pos = pygame.Vector2(player_pos.x + player_size.x / 2, player_pos.y - player_size.y)
@@ -93,7 +94,12 @@ while running:
     if can_launch_ball:
         ball_pos = initialized_ball_pos
     else:
-        ball_pos += new_launch_dir * 100
+        ball_pos += new_launch_dir * ball_speed
+
+    # Bounce Back
+    if ball_pos.x + ball_radius >= 940 or ball_pos.x - ball_radius <= 60:
+        new_launch_dir.x = -new_launch_dir.x
+
 
     pygame.display.flip()
 
