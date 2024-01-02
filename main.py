@@ -23,11 +23,13 @@ ball_pos = pygame.Vector2(10, 10)
 arrow_image = pygame.image.load("launch_arrow.png")
 arrow_rect = arrow_image.get_rect(center=(player_pos.x + player_size.x / 2, player_pos.y))
 
+# Track Mouse clicks
 clicking = False
 
 running = True
 dt = 0
 
+# Game Loop
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -37,6 +39,7 @@ while running:
         if event.type == pygame.MOUSEBUTTONUP:
             clicking = False
 
+    # Get Mouse Position
     mouse_pos = pygame.mouse.get_pos()
 
     # Calculate angle
@@ -62,7 +65,6 @@ while running:
 
     # Draw ball
     launch_dir = pygame.Vector2()
-
     pygame.draw.circle(screen, (255, 255, 255), (int(ball_pos.x), int(ball_pos.y)), ball_radius)
 
     # Draw player and boundaries
@@ -73,14 +75,11 @@ while running:
     # Disable Arrows After Click
     if(can_launch_ball):
         if(clicking):
-            # launch_dir = mouse_pos - player_pos
-            # launch_dir.normalize_ip()
-
             can_launch_ball = False
 
+        # Get Launch Direction
         launch_dir = mouse_pos - player_pos
         launch_dir.normalize_ip()
-
         if(launch_dir.magnitude != 0):
             new_launch_dir = launch_dir
 
@@ -104,6 +103,8 @@ while running:
     if (player_pos.x - player_size.x / 2 <= ball_pos.x <= player_pos.x + player_size.x / 2 and player_pos.y <= ball_pos.y <= player_pos.y + player_size.y):
         new_launch_dir.y = -new_launch_dir.y
 
+
+    # Refresh the screen
     pygame.display.flip()
 
     dt = clock.tick(60) / 1000
