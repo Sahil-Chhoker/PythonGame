@@ -60,38 +60,40 @@ while running:
     screen.fill((0, 0, 0))
 
     # Draw ball
-    launch_dir = pygame.Vector2(mouse_pos[0] - initialized_ball_pos.x, mouse_pos[1] - initialized_ball_pos.y)
-    launch_dir.normalize_ip()
-
-    if can_launch_ball:
-        ball_pos = initialized_ball_pos
-    else:
-        ball_pos.x += launch_dir.x
-        ball_pos.y += launch_dir.y
+    launch_dir = pygame.Vector2()
 
     pygame.draw.circle(screen, (255, 255, 255), (int(ball_pos.x), int(ball_pos.y)), ball_radius)
 
     # Draw player and boundaries
     pygame.draw.rect(screen, (255, 255, 255), (player_pos.x - player_size.x / 2, player_pos.y, player_size.x, player_size.y), 10)
     pygame.draw.line(screen, (255, 255, 255), (60, 0), (60, 720), 5)
-    pygame.draw.line(screen, (255, 255, 255), (940, 0), (940, 720), 5)
+    pygame.draw.line(screen, (255, 255, 255), (940, 0), (940, 720), 5) 
 
-    
-    
-
-    # Launch Ball
+    # Disable Arrows After Click
     if(can_launch_ball):
         if(clicking):
+            # launch_dir = mouse_pos - player_pos
+            # launch_dir.normalize_ip()
+
             can_launch_ball = False
+
+        launch_dir = mouse_pos - player_pos
+        launch_dir.normalize_ip()
+
+        if(launch_dir.magnitude != 0):
+            new_launch_dir = launch_dir
 
         # Rotate and draw arrow image
         modified_arrow_image = pygame.transform.rotate(arrow_image, angle - 90)
         modified_arrow_image = pygame.transform.scale_by(modified_arrow_image, 3)
         arrow_rect = modified_arrow_image.get_rect(center=(player_pos.x, player_pos.y - 15))
         screen.blit(modified_arrow_image, arrow_rect)
-        
-        
 
+    # Launch Ball
+    if can_launch_ball:
+        ball_pos = initialized_ball_pos
+    else:
+        ball_pos += new_launch_dir * 100
 
     pygame.display.flip()
 
