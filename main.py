@@ -100,6 +100,9 @@ while running:
     if ball_pos.x + ball_radius >= 940 or ball_pos.x - ball_radius <= 60:
         new_launch_dir.x = -new_launch_dir.x
 
+    # Bounce off Striker
+    if (player_pos.x - player_size.x / 2 <= ball_pos.x <= player_pos.x + player_size.x / 2 and player_pos.y <= ball_pos.y <= player_pos.y + player_size.y):
+        new_launch_dir.y = -new_launch_dir.y
 
     pygame.display.flip()
 
