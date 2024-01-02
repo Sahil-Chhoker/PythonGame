@@ -22,6 +22,8 @@ ball_pos = pygame.Vector2(10, 10)
 arrow_image = pygame.image.load("launch_arrow.png")
 arrow_rect = arrow_image.get_rect(center=(player_pos.x + player_size.x / 2, player_pos.y))
 
+clicking = False
+
 running = True
 dt = 0
 
@@ -29,6 +31,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            clicking = True
+        if event.type == pygame.MOUSEBUTTONUP:
+            clicking = False
 
     mouse_pos = pygame.mouse.get_pos()
 
@@ -46,10 +52,10 @@ while running:
         player_pos.x -= player_size.x / 2
         player_pos.y = 650
 
-        if player_pos.x + player_size.x >= 940:
-            player_pos.x = 870
-        elif player_pos.x <= 60:
-            player_pos.x = 60
+        if player_pos.x + player_size.x >= 980:
+            player_pos.x = 905
+        elif player_pos.x <= 100:
+            player_pos.x = 95
 
     # Fill the screen
     screen.fill((0, 0, 0))
@@ -76,6 +82,13 @@ while running:
     modified_arrow_image = pygame.transform.scale_by(modified_arrow_image, 3)
     arrow_rect = modified_arrow_image.get_rect(center=(player_pos.x, player_pos.y - 15))
     screen.blit(modified_arrow_image, arrow_rect)
+
+    # Launch Ball
+    if(clicking):
+        if(can_launch_ball):
+            can_launch_ball = False
+            
+
 
     pygame.display.flip()
 
