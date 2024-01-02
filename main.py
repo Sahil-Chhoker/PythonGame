@@ -1,66 +1,84 @@
 import pygame
+import math
 
-def initialize_game(screen_size):
-    pygame.init()
-    screen = pygame.display.set_mode((screen_size.x, screen_size.y))
-    clock = pygame.time.Clock()
-    return screen, clock
+pygame.init()
 
-def handle_events():
+# Initialize game
+screen_size = pygame.Vector2(1000, 720)
+screen = pygame.display.set_mode((int(screen_size.x), int(screen_size.y)))
+clock = pygame.time.Clock()
+
+# Player variables
+player_size = pygame.Vector2(70, 10)
+player_pos = pygame.Vector2(screen.get_width() / 2 - player_size.x / 2, 650)
+
+# Ball variables
+ball_radius = 10
+can_launch_ball = True
+initialized_ball_pos = pygame.Vector2(player_pos.x + player_size.x / 2, player_pos.y - player_size.y)
+ball_pos = pygame.Vector2(10, 10)
+
+# Arrow image
+arrow_image = pygame.image.load("launch_arrow.png")
+arrow_rect = arrow_image.get_rect(center=(player_pos.x + player_size.x / 2, player_pos.y))
+
+running = True
+dt = 0
+
+while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            return False  # Signal to stop the game
-    return True
+            running = False
 
-def update_player_position():
-    player_pos.x, player_pos.y = pygame.mouse.get_pos()
-    player_pos.x -= player_size.x / 2
-    player_pos.y = 650
+    mouse_pos = pygame.mouse.get_pos()
 
-    if(player_pos.x + player_size.x >= 940):
-        player_pos.x = 870
-    elif(player_pos.x <= 60):
-        player_pos.x = 60
+    # Calculate angle
+    x_dis = mouse_pos[0] - arrow_rect.centerx
+    y_dis = -(mouse_pos[1] - arrow_rect.centery)
+    angle = math.degrees(math.atan2(y_dis, x_dis))
 
-def draw_player():
-    pygame.draw.rect(screen, "white", (player_pos.x, player_pos.y, player_size.x, player_size.y), 10)
+    # Update player position
+    initial_player_pos = pygame.Vector2(screen_size.x / 2, 650)
+    if can_launch_ball:
+        player_pos = initial_player_pos
+    else:
+        player_pos.x, player_pos.y = mouse_pos
+        player_pos.x -= player_size.x / 2
+        player_pos.y = 650
 
-def draw_boundaryLines():
-    pygame.draw.line(screen, "white", (60, 0), (60, 720), 5)
-    pygame.draw.line(screen, "white", (940, 0), (940, 720), 5)
+        if player_pos.x + player_size.x >= 940:
+            player_pos.x = 870
+        elif player_pos.x <= 60:
+            player_pos.x = 60
 
-def draw_ball(screen_size):
-    pygame.draw.circle(screen, "white", screen_size/2, 10)
+    # Fill the screen
+    screen.fill((0, 0, 0))
 
-def main():
-    screen_size = pygame.Vector2(1000, 720)
+    # Draw ball
+    launch_dir = pygame.Vector2(mouse_pos[0] - initialized_ball_pos.x, mouse_pos[1] - initialized_ball_pos.y)
+    launch_dir.normalize_ip()
 
-    global screen, player_pos, player_size
+    if can_launch_ball:
+        ball_pos = initialized_ball_pos
+    else:
+        ball_pos.x += launch_dir.x
+        ball_pos.y += launch_dir.y
 
-    screen, clock = initialize_game(screen_size)
-    
-    player_size = pygame.Vector2(70, 10)
-    player_pos = pygame.Vector2(screen.get_width() / 2 - player_size.x / 2, 650)
+    pygame.draw.circle(screen, (255, 255, 255), (int(ball_pos.x), int(ball_pos.y)), ball_radius)
 
-    running = True
-    dt = 0
+    # Draw player and boundaries
+    pygame.draw.rect(screen, (255, 255, 255), (player_pos.x - player_size.x / 2, player_pos.y, player_size.x, player_size.y), 10)
+    pygame.draw.line(screen, (255, 255, 255), (60, 0), (60, 720), 5)
+    pygame.draw.line(screen, (255, 255, 255), (940, 0), (940, 720), 5)
 
-    while running:
-        running = handle_events()
-    
-        screen.fill("black")
-        
-        draw_ball(screen_size)
-        update_player_position()
-        draw_player()
-        draw_boundaryLines()
+    # Rotate and draw arrow image
+    modified_arrow_image = pygame.transform.rotate(arrow_image, angle - 90)
+    modified_arrow_image = pygame.transform.scale_by(modified_arrow_image, 3)
+    arrow_rect = modified_arrow_image.get_rect(center=(player_pos.x, player_pos.y - 15))
+    screen.blit(modified_arrow_image, arrow_rect)
 
-        pygame.display.flip()
+    pygame.display.flip()
 
-        dt = clock.tick(60) / 1000
+    dt = clock.tick(60) / 1000
 
-    pygame.quit()
-
-
-if __name__ == "__main__":
-    main()
+pygame.quit()
