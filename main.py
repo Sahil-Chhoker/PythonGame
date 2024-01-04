@@ -61,14 +61,35 @@ while running:
         player_pos.x, player_pos.y = mouse_pos
         player_pos.y = 650
 
-        if player_pos.x + player_size.x >= 980:
-            player_pos.x = 905
-        elif player_pos.x <= 100:
-            player_pos.x = 95
+        # if player_pos.x + player_size.x >= 980:
+        #     player_pos.x = 905
+        # elif player_pos.x <= 100:
+        #     player_pos.x = 95
+
+    
+    # Apply boundary conditions for player
+    if player_pos.x + (player_size.x) >= 980:
+        player_pos.x = 980 - player_size.x
+    elif player_pos.x - (player_size.x / 2) <= 60:
+        player_pos.x = 60 + player_size.x / 2
+
+    # Apply boundary conditions for enemy
+    if enemy_pos.x + (enemy_size.x) >= 980:
+        enemy_pos.x = 980 - enemy_size.x
+    elif enemy_pos.x - (enemy_size.x / 2) <= 60:
+        enemy_pos.x = 60 + enemy_size.x
 
     # Update enemy AI position based on the ball position
     target_x = ball_pos.x - enemy_size.x / 2
     enemy_pos.x += (target_x - enemy_pos.x) * 1  # Adjust the coefficient for smoother movement
+
+    # Calculate player direction
+    player_direction = pygame.Vector2(mouse_pos[0] - player_pos.x, mouse_pos[1] - player_pos.y)
+    player_direction.normalize_ip()  # Normalize the vector
+
+    # Calculate enemy direction
+    enemy_direction = pygame.Vector2(ball_pos.x - enemy_pos.x, ball_pos.y - enemy_pos.y)
+    enemy_direction.normalize_ip()  # Normalize the vector
 
     # Fill the screen
     screen.fill((0, 0, 0))
@@ -112,13 +133,19 @@ while running:
     # Bounce off Striker
     player_rect = pygame.Rect(player_pos.x - player_size.x / 2, player_pos.y, player_size.x, player_size.y)
     if player_rect.colliderect(ball_pos.x - ball_radius, ball_pos.y - ball_radius, 2 * ball_radius, 2 * ball_radius):
-        ball_direction.y = -ball_direction.y
+        relative_velocity = ball_direction - player_direction
+        ball_direction -= 2 * relative_velocity.dot(pygame.Vector2(0, -1)) * pygame.Vector2(0, -1)
+        ball_direction.normalize_ip()  # Ensure the ball direction is normalized
+
         ball_pos.y = player_pos.y - ball_radius - 1  # Adjust the ball's position to prevent repeated collisions
 
     # Bounce off Enemy Paddle
     enemy_rect = pygame.Rect(enemy_pos.x - enemy_size.x / 2, enemy_pos.y, enemy_size.x, enemy_size.y)
     if enemy_rect.colliderect(ball_pos.x - ball_radius, ball_pos.y - ball_radius, 2 * ball_radius, 2 * ball_radius):
-        ball_direction.y = -ball_direction.y
+        relative_velocity = ball_direction - enemy_direction
+        ball_direction -= 2 * relative_velocity.dot(pygame.Vector2(0, -1)) * pygame.Vector2(0, -1)
+        ball_direction.normalize_ip()  # Ensure the ball direction is normalized
+
         ball_pos.y = enemy_pos.y + enemy_size.y + ball_radius + 1  # Adjust the ball's position to prevent repeated collisions
 
     # Refresh the screen
