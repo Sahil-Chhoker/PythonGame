@@ -71,15 +71,15 @@ while running:
     elif enemy_pos.x <= 100:
             enemy_pos.x = 95
 
-    # # Apply boundary conditions for enemy
-    # if enemy_pos.x + (enemy_size.x) >= 980:
-    #     enemy_pos.x = 980 - enemy_size.x
-    # elif enemy_pos.x - (enemy_size.x / 2) <= 60:
-    #     enemy_pos.x = 60 + enemy_size.x
-
     # Update enemy AI position based on the ball position
     target_x = ball_pos.x - enemy_size.x / 2
-    enemy_pos.x += (target_x - enemy_pos.x) * 1  # Adjust the coefficient for smoother movement
+    enemy_pos.x += (target_x - enemy_pos.x) * 1
+
+    # Apply boundary conditions for enemy
+    if enemy_pos.x + enemy_size.x / 2 >= 980:
+        enemy_pos.x = 1000 - enemy_size.x / 2
+    elif enemy_pos.x - enemy_size.x / 2 <= 60:
+        enemy_pos.x = 60 + enemy_size.x / 2
 
     # Calculate player direction
     player_direction = pygame.Vector2(mouse_pos[0] - player_pos.x, mouse_pos[1] - player_pos.y)
@@ -146,7 +146,7 @@ while running:
         ball_pos.y = enemy_pos.y + enemy_size.y + ball_radius + 1  # Adjust the ball's position to prevent repeated collisions
 
     # To check the collision area of enemy
-    # pygame.draw.rect(screen, (0, 255, 0), (enemy_rect.x, enemy_rect.y, enemy_rect.width, enemy_rect.height), 2)
+    pygame.draw.rect(screen, (0, 255, 0), (enemy_rect.x, enemy_rect.y, enemy_rect.width, enemy_rect.height), 2)
 
     # Refresh the screen
     pygame.display.flip()
