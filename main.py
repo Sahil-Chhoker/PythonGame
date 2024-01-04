@@ -61,23 +61,21 @@ while running:
         player_pos.x, player_pos.y = mouse_pos
         player_pos.y = 650
 
-        # if player_pos.x + player_size.x >= 980:
-        #     player_pos.x = 905
-        # elif player_pos.x <= 100:
-        #     player_pos.x = 95
+        if player_pos.x + player_size.x >= 980:
+            player_pos.x = 905
+        elif player_pos.x <= 100:
+            player_pos.x = 95
 
-    
-    # Apply boundary conditions for player
-    if player_pos.x + (player_size.x) >= 980:
-        player_pos.x = 980 - player_size.x
-    elif player_pos.x - (player_size.x / 2) <= 60:
-        player_pos.x = 60 + player_size.x / 2
+    if enemy_pos.x + enemy_size.x >= 980:
+            enemy_pos.x = 905
+    elif enemy_pos.x <= 100:
+            enemy_pos.x = 95
 
-    # Apply boundary conditions for enemy
-    if enemy_pos.x + (enemy_size.x) >= 980:
-        enemy_pos.x = 980 - enemy_size.x
-    elif enemy_pos.x - (enemy_size.x / 2) <= 60:
-        enemy_pos.x = 60 + enemy_size.x
+    # # Apply boundary conditions for enemy
+    # if enemy_pos.x + (enemy_size.x) >= 980:
+    #     enemy_pos.x = 980 - enemy_size.x
+    # elif enemy_pos.x - (enemy_size.x / 2) <= 60:
+    #     enemy_pos.x = 60 + enemy_size.x
 
     # Update enemy AI position based on the ball position
     target_x = ball_pos.x - enemy_size.x / 2
@@ -96,7 +94,6 @@ while running:
 
     # Draw ball
     pygame.draw.circle(screen, (255, 255, 255), (int(ball_pos.x), int(ball_pos.y)), ball_radius)
-
     # Draw player and enemy paddles and boundaries
     pygame.draw.rect(screen, (255, 255, 255), (player_pos.x - player_size.x / 2, player_pos.y, player_size.x, player_size.y), 10)
     pygame.draw.rect(screen, (255, 0, 0), (enemy_pos.x - enemy_size.x / 2, enemy_pos.y, enemy_size.x, enemy_size.y), 10)
@@ -140,13 +137,16 @@ while running:
         ball_pos.y = player_pos.y - ball_radius - 1  # Adjust the ball's position to prevent repeated collisions
 
     # Bounce off Enemy Paddle
-    enemy_rect = pygame.Rect(enemy_pos.x - enemy_size.x / 2, enemy_pos.y, enemy_size.x, enemy_size.y)
+    enemy_rect = pygame.Rect(enemy_pos.x - enemy_size.x / 2, enemy_pos.y - enemy_size.y / 2, enemy_size.x, enemy_size.y)
     if enemy_rect.colliderect(ball_pos.x - ball_radius, ball_pos.y - ball_radius, 2 * ball_radius, 2 * ball_radius):
         relative_velocity = ball_direction - enemy_direction
         ball_direction -= 2 * relative_velocity.dot(pygame.Vector2(0, -1)) * pygame.Vector2(0, -1)
         ball_direction.normalize_ip()  # Ensure the ball direction is normalized
 
         ball_pos.y = enemy_pos.y + enemy_size.y + ball_radius + 1  # Adjust the ball's position to prevent repeated collisions
+
+    # To check the collision area of enemy
+    # pygame.draw.rect(screen, (0, 255, 0), (enemy_rect.x, enemy_rect.y, enemy_rect.width, enemy_rect.height), 2)
 
     # Refresh the screen
     pygame.display.flip()
