@@ -12,12 +12,18 @@ clock = pygame.time.Clock()
 player_size = pygame.Vector2(70, 10)
 player_pos = pygame.Vector2(screen.get_width() / 2 - player_size.x / 2, 650)
 
+# Enemy AI variables
+enemy_size = pygame.Vector2(70, 10)
+enemy_pos = pygame.Vector2(screen.get_width() / 2 - enemy_size.x / 2, 50)
+enemy_speed = 8  # Adjust the speed for more responsiveness
+
 # Ball variables
-ball_speed = 30
+ball_speed = 20
 ball_radius = 10
 can_launch_ball = True
 initialized_ball_pos = pygame.Vector2(player_pos.x + player_size.x / 2, player_pos.y - player_size.y)
 ball_pos = pygame.Vector2(10, 10)
+ball_direction = pygame.Vector2(1, 1)  # Initial direction
 
 # Arrow image
 arrow_image = pygame.image.load("launch_arrow.png")
@@ -60,28 +66,32 @@ while running:
         elif player_pos.x <= 100:
             player_pos.x = 95
 
+    # Update enemy AI position based on the ball position
+    target_x = ball_pos.x - enemy_size.x / 2
+    enemy_pos.x += (target_x - enemy_pos.x) * 1  # Adjust the coefficient for smoother movement
+
     # Fill the screen
     screen.fill((0, 0, 0))
 
     # Draw ball
-    launch_dir = pygame.Vector2()
     pygame.draw.circle(screen, (255, 255, 255), (int(ball_pos.x), int(ball_pos.y)), ball_radius)
 
-    # Draw player and boundaries
+    # Draw player and enemy paddles and boundaries
     pygame.draw.rect(screen, (255, 255, 255), (player_pos.x - player_size.x / 2, player_pos.y, player_size.x, player_size.y), 10)
+    pygame.draw.rect(screen, (255, 0, 0), (enemy_pos.x - enemy_size.x / 2, enemy_pos.y, enemy_size.x, enemy_size.y), 10)
     pygame.draw.line(screen, (255, 255, 255), (60, 0), (60, 720), 5)
-    pygame.draw.line(screen, (255, 255, 255), (940, 0), (940, 720), 5) 
+    pygame.draw.line(screen, (255, 255, 255), (940, 0), (940, 720), 5)
 
     # Disable Arrows After Click
-    if(can_launch_ball):
-        if(clicking):
+    if can_launch_ball:
+        if clicking:
             can_launch_ball = False
 
         # Get Launch Direction
         launch_dir = mouse_pos - player_pos
         launch_dir.normalize_ip()
-        if(launch_dir.magnitude != 0):
-            new_launch_dir = launch_dir
+        if launch_dir.magnitude != 0:
+            ball_direction = launch_dir
 
         # Rotate and draw arrow image
         modified_arrow_image = pygame.transform.rotate(arrow_image, angle - 90)
@@ -93,16 +103,23 @@ while running:
     if can_launch_ball:
         ball_pos = initialized_ball_pos
     else:
-        ball_pos += new_launch_dir * ball_speed
+        ball_pos += ball_direction * ball_speed
 
     # Bounce Back
     if ball_pos.x + ball_radius >= 940 or ball_pos.x - ball_radius <= 60:
-        new_launch_dir.x = -new_launch_dir.x
+        ball_direction.x = -ball_direction.x
 
     # Bounce off Striker
-    if (player_pos.x - player_size.x / 2 <= ball_pos.x <= player_pos.x + player_size.x / 2 and player_pos.y <= ball_pos.y <= player_pos.y + player_size.y):
-        new_launch_dir.y = -new_launch_dir.y
+    player_rect = pygame.Rect(player_pos.x - player_size.x / 2, player_pos.y, player_size.x, player_size.y)
+    if player_rect.colliderect(ball_pos.x - ball_radius, ball_pos.y - ball_radius, 2 * ball_radius, 2 * ball_radius):
+        ball_direction.y = -ball_direction.y
+        ball_pos.y = player_pos.y - ball_radius - 1  # Adjust the ball's position to prevent repeated collisions
 
+    # Bounce off Enemy Paddle
+    enemy_rect = pygame.Rect(enemy_pos.x - enemy_size.x / 2, enemy_pos.y, enemy_size.x, enemy_size.y)
+    if enemy_rect.colliderect(ball_pos.x - ball_radius, ball_pos.y - ball_radius, 2 * ball_radius, 2 * ball_radius):
+        ball_direction.y = -ball_direction.y
+        ball_pos.y = enemy_pos.y + enemy_size.y + ball_radius + 1  # Adjust the ball's position to prevent repeated collisions
 
     # Refresh the screen
     pygame.display.flip()
